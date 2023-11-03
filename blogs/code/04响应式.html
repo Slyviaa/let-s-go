@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  
+</body>
+<script>
+  const target = {
+    a:1,
+    b:2,
+    c:[1,2,3]
+  }
+  let activeAffectName
+  // 弱引用；若没有在其他地方被引用，则target会触发垃圾回收
+  const bucket = new WeakMap()
+  const handler = {
+    get(target,key,receiver){
+      track(target,key)
+      return target[key]
+
+    },
+    set(target,key,value,receiver){
+      target[key] = value
+      trigger(target,key)
+      return true
+    }
+  }
+   // 添加依赖
+  function track(target,key){
+    if(!activeAffectName) return 
+    let depsMap = bucket.get(target)
+    if(!depsMap){
+      bucket.set(target,(depsMap = new Map()))
+    }
+    console.log('depsMap',depsMap,depsMap.get(key))
+    let deps = depsMap.get(key)
+    if(!deps){
+      depsMap.set(key,(deps = new Set()))
+    }
+    deps.add(activeAffectName)
+  }
+  // 查找依赖
+  function trigger(target,key){
+    if(!bucket.get(target)) return 
+    let activeAffectNameSet = bucket.get(target).get(key)
+    activeAffectNameSet&& activeAffectNameSet.forEach(fn=>fn())
+  }
+  // 统一函数别名
+  function getEffectName(fn){
+    if(fn){
+      activeAffectName = fn
+      fn()
+    }
+  }
+  const proxyTarget = new Proxy(target,handler)
+  function effect(){
+    document.body.innerText=proxyTarget.a
+  }
+  getEffectName(effect)
+  setTimeout(()=>{
+    proxyTarget.a = 'PPPPPPPPPPPPPP'
+    proxyTarget.b = '1111111'
+    proxyTarget.a= '222222'
+  },1000)
+
+</script>
+</html>
+
