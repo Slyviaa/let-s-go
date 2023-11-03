@@ -49,7 +49,7 @@
     let activeAffectNameSet = bucket.get(target).get(key)
     activeAffectNameSet&& activeAffectNameSet.forEach(fn=>fn())
   }
-  // 统一函数别名
+  // 统一用户调用的函数别名
   function getEffectName(fn){
     if(fn){
       activeAffectName = fn
@@ -63,6 +63,7 @@
   getEffectName(effect)
   setTimeout(()=>{
     proxyTarget.a = 'PPPPPPPPPPPPPP'
+    // b属性没有被引用；修改b属性，不会触发target其他属性的监听
     proxyTarget.b = '1111111'
     proxyTarget.a= '222222'
   },1000)
