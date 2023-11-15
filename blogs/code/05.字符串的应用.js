@@ -84,7 +84,27 @@ console.log(wordDictionary.search("bad"))
 console.log(wordDictionary.search("ad"))
 console.log(wordDictionary.search("b.."))
 
-/* 
+/* 力扣：8
   8. 字符串转换整数 (atoi)
   字符串以数字开头和结尾正则： /^\d(.*\d)?$/ 
 */
+function atoi(str){
+  const reg = /\s*([-\+]?[0-9]*).*/
+  const maxNum = Math.pow(2,31) -1
+  const minNum = -maxNum -1
+  let numStr = str.match(reg)
+  let targetNum = 0 
+  if(numStr){
+    targetNum = +numStr[1]
+    if(Number.isNaN(targetNum)){
+      targetNum = 0 
+    }
+    if(targetNum>maxNum ){
+      targetNum = maxNum
+    }else if(targetNum<minNum){
+      targetNum = minNum
+    }
+  }
+  return targetNum
+
+}
