@@ -64,14 +64,70 @@ var reverseList = function(head) {
   if(!head|| !head.next){
     return head
   }
-  let dummyNode = new ListNode()
-  dummyNode.next = head
   // cur当前结点，prev前驱结点，next后驱结点;迭代法
-  let prev = dummyNode
-  let cur = dummyNode
-  let next = dummyNode
-  while(cur.next){
-    
+  while(cur){
+    // 双指针法 当前指针和它的前指针；迭代改变指向
+    let next = cur.next
+    cur.next = pre
+    pre = cur
+    cur = next
+    next = cur
   }
-  return dummyNode.next
+ return pre
+};
+// 反转链表 递归
+function reverseSmallNode(head){
+  if(!head|| !head.next){
+    return head
+  }else {
+    return recursiveNode(null,head)
+  }
+}
+
+function recursiveNode(pre,cur){
+  if(!cur) return pre
+  let next = cur.next
+  cur.next = pre
+  pre = cur
+  cur = next
+  return recursiveNode(pre,cur)
+}
+/* 
+  92. 反转链表 II
+  反转从位置 m 到 n 的链表。请使用一趟扫描完成反转。
+*/
+/**
+ * @param {ListNode} head
+ * @return {ListNode}
+ */
+var reverseList = function(head,m,n) {
+  if(!head|| !head.next || m === n){
+    return head
+  }
+  let dummy = new ListNode()
+  dummy.next = head
+  let pre = dummy
+  let cur = head
+  // cur当前结点，prev前驱结点，next后驱结点;
+  while(m-1){
+    pre = cur
+    cur = cur.next
+    m--
+    n--
+  }
+  // 开始反转节点的前面一个结点
+  let leftNode = pre
+  // 开始反转的第一个结点
+  let starNode = cur
+  while(n){
+    let next = cur.next
+    cur.next = pre
+    pre = cur
+    cur = next
+    n--
+  }
+  // 遍历完后；此时prev指向的是反转的最后一个结点
+  starNode.next = cur
+  leftNode.next = pre
+  return  dummy.next 
 };
