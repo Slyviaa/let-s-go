@@ -95,28 +95,40 @@ var maxSlidingWindow = function(nums, k) {
   return res
 };
 
+// 双端队列  维护一个非递增队列；滑动窗口移动，->入队列
 var maxSlidingWindow = function(nums, k) {
   if(nums.length ===1){
     return nums
   }
   let res = []
-  let stack = []
+  let queue = []
   // 初始化栈
-  for(let i = 0;i<k;i++){
-    stack.push(nums[i])
-  }
-  for(let i = k -1;i<nums.length- k + 1;i++){
-    while(stack.length){
-      if(nums[i+k]>= stack[stack.length -1] ){
-        // 右侧增加
-        stack.push(nums[i])
-      }else if(nums[i - k] <= stack[stack.length -1]){
-        // 左侧删除
-        stack.pop()
-      }
+  for(let i = 0;i<nums.length;i++){
+    while(queue.length && nums[i]>=nums[queue[queue.length -1]]){
+      // 新加的元素大于队列尾部的元素-则队列所有小于新元素的元素出队列
+      queue.pop()
     }
-    res[i] = stack.
+    // 小于队尾值的元素索引入队列
+    queue.push(i)
+    while(queue.length && queue[0]<=i-k){
+      // 当队头元素索引小于等于滑动窗口起始点的索引时；说明对头索引对应的元素已不在滑动窗口内
+      queue.shift()
+    }
+    
+    if(i>=k){
+      // 判断滑动窗口的状态，只有在被遍历的元素个数大于 k 的时候，才更新结果数组
+      res.push(nums[queue[0]])
+    }
   }
 
   return res
 };
+
+
+/* 
+双端队列的重点：
+  维持队列的递减性：确保队头元素是当前滑动窗口的最大值。这样我们每次取最大值时，直接取队头元素即可；
+  在维持队列递减性的基础上、更新队列的内容。
+  维持队列的有效性：确保队列里所有的元素都在滑动窗口圈定的范围以内。
+  排除掉滑动窗口还没有初始化完成、第一个最大值还没有出现的特殊情况。
+ */
