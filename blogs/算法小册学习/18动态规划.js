@@ -120,7 +120,6 @@ var coinChange = function(coins, amount) {
     f（i-1,c-w[i])为当拿掉所有物品中的一个物品，且此物品不在背包内的最大价值；
   f（i,c）= Math.max(f（i-1,c),f（i-1,c-w[i])+value[i]）
   初始化状态:
-    当物品总数为0时，f(0，c) = 0 
     当背包容量总数为0时，f(i，0) = 0
 */
 
@@ -128,15 +127,18 @@ function testWeightBagProblem (weight, value, size) {
   // 定义 dp 数组
   // 数组初始化
   const len = weight.length,
-        dp = Array(len + 1).fill().map(() => Array(size + 1).fill(0));
+        dp = Array(len).fill().map(() => Array(size + 1).fill(0));
 
-  // i 为物品数量；j为背包容量
+  // i 为物品序号,从0-到i-1；j为背包容量
+
   for (let j = weight[0]; j <= size; j++) {
-    // 若背包有容量；初始化背包的
-    dp[1][j] = value[0];
+  // 因为dp[j]需要用到dp[j-1]
+  // j < weight[0]已在上方被初始化为0
+  // j >= weight[0]的值就初始化为value[0]
+    dp[0][j] = value[0];
 }
 // 遍历增加物品数量和背包容量
-  for(let i = 1 ; i <=len;i++ ){
+  for(let i = 1 ; i <len;i++ ){
     for(let j =0 ; j <=size;j++ ){
       if(j>=weight[i]){
         // 如果当前背包的容量大于物品的重量；则该物品可放入在背包内
@@ -148,11 +150,77 @@ function testWeightBagProblem (weight, value, size) {
     }
   }
   console.table(dp)
-  return dp[len][size]
+  return dp[len - 1][size]
 }
+/* 
+  摇滚数组：固定存储空间，滚动更新存储空间的内容，确保空间内一直存着最新的数据。
+  分析：
+    dp[i][j]只会受第i-1个物品的影响；所以只需要记录Math.max(dp[i-1][j],dp[i-1][j-weight[i]]+value[i])
+    所以可以优化为用一个状态值来记录前i-1的物品的最大值
+*/
 
+function testWeightBagProblem2 (weight, value, size) {
+  // 定义 dp 数组
+  // 数组初始化
+  const len = weight.length,
+        dp =  Array(size + 1).fill(0);
+  // i代表物品，j代表背包容量
+  let res = -Infinity
+// 遍历增加物品数量和背包容量
+  for(let i = 0 ; i <len;i++ ){
+    for(let j = size ; j >=weight[i];j-- ){
+        // 容量为
+        dp[j]= Math.max(dp[j],dp[j - weight[i]] + value[i])
+        if(dp[j]>res){
+          res =  dp[j]
+        }
+    }
+  }
+  return res
+}
 function test () {
-  console.log(testWeightBagProblem([1, 3, 4, 5], [15, 20, 30, 55], 6));
+  console.log(testWeightBagProblem2([1, 3, 4, 5], [15, 20, 30,55], 6)); // 70
+  console.log(testWeightBagProblem2([7, 15, 22], [1, 2, 3],30)); //4
+
 }
 
 test();
+
+/* 
+  300. 最长递增子序列   https://leetcode.cn/problems/longest-increasing-subsequence/
+  分析：
+    1.初始化状态,数组中的每个元素的最长上升序列都是自己；
+    2.使用新的一个数组用来维护每个元素的最长上升序列;
+  状态转移方程：
+    dp[i]代表 最长的上升子序列的长度； i为当前当前元素下标 ，
+    第i+1个元素若比第 i个元素大，则序列长度+1，即dp[j]+1 
+    第i+1个元素若比第 i个元素小，则序列长度不变，即dp[j] 
+  dp[i] = Math.max(dp[i] ,dp[i]+1 )
+  初始化状态  dp(0) = 1
+  
+*/
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var lengthOfLIS = function(nums) {
+  let dp = Array(nums.length).fill(1)
+  if(!nums.length) return 0
+  let maxLen = 1
+// 从第二个元素开始比较
+  for(let i = 1;i<nums.length;i++){
+    // 将第i个元素与前i-1个元素逐个比较
+    for(let j =0;j<i;j++){
+      // 若遇到了一个比当前元素小的值，则意味着遇到了一个可以延长的上升子序列，故更新当前元素索引位对应的状态
+      if(nums[i]>nums[j]){
+        // 更新元素的序列长度
+        dp[i] = Math.max(dp[i],dp[j]+1)
+      }
+    }
+    //当前元素的序列长度确定后，更新上升子序列长度的最大值
+    maxLen = Math.max(dp[i],maxLen)
+  }
+  return maxLen
+};
+lengthOfLIS([3,2,1])
+// lengthOfLIS([0,1,0,3,2,3])
