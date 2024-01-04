@@ -40,3 +40,47 @@ const store1 = new Vuex.Store()
 const store2 = new Vuex.Store()
 console.log(store1 === store2) //false
 
+// 实现Storage，使得该对象为单例，基于 localStorage 进行封装。实现方法 setItem(key,value) 和 getItem(key)。
+// 静态方法版
+class Storage{
+  static getInstance(){
+    if(!Storage.instance){
+      Storage.instance = new Storage()
+    }
+    // 判断唯一唯一实例
+    return Storage.instance
+  }
+  setItem(key,value){
+    return localStorage.setItem(key,value)
+  }
+  getItem(key){
+    return localStorage.getItem(key)
+  }
+}
+
+/* 
+  闭包版
+*/
+
+
+function Storage(){
+
+}
+Storage.getInstance =(function(){
+  if(!Storage.instance){
+    Storage.instance = new Storage()
+  }
+  // 判断唯一唯一实例
+  return Storage.instance
+})()
+
+Storage.prototype.setItem = (key,value)=>{
+  return localStorage.setItem(key,value)
+}
+Storage.prototype.getItem = (key)=>{
+  return localStorage.getItem(key)
+}
+
+// 实现一个全局唯一的Modal弹框
+
+
